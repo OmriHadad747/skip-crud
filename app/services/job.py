@@ -4,10 +4,11 @@ from typing import Any, Dict
 from pydantic import validate_arguments
 from flask import jsonify
 from flask import current_app as app
-from app.extensions import redis
-from app.utils.errors import Errors as err
-from app.utils import custom_json_encoder as json_enc
-from skip_db_lib.models import job as job_model
+
+from skip_common_lib.extensions import redis
+from skip_common_lib.utils.errors import Errors as err
+from skip_common_lib.utils import custom_encoders as encoders
+from skip_common_lib.models import job as job_model
 
 
 class CrudJob:
@@ -19,7 +20,7 @@ class CrudJob:
             new_job = job_model.Job(**fields)
             redis.lpush(
                 "new-jobs",
-                json.dumps(new_job.dict(), default=json_enc.custom_serializer),
+                json.dumps(new_job.dict(), default=encoders.custom_serializer),
             )
 
         except Exception as e:
