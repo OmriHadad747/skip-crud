@@ -2,9 +2,10 @@ from typing import Any, Dict
 from flask import jsonify
 from pydantic import validate_arguments
 from werkzeug import security
-from app.utils.errors import Errors as err
-from skip_db_lib.database.freelancers import FreelancerDatabase as db
-from skip_db_lib.models import freelancer as freelancer_model
+
+from skip_common_lib.utils.errors import Errors as err
+from skip_common_lib.database.freelancers import FreelancerDatabase as db
+from skip_common_lib.models import freelancer as freelancer_model
 
 
 # TODO catch more specifiec exceptions

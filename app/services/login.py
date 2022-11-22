@@ -2,8 +2,9 @@ from typing import Any, Dict
 from werkzeug import security
 from flask import jsonify
 from flask_jwt_extended import create_access_token
-from app.utils.errors import Errors as err
-from skip_db_lib.database.customers import CustomerDatabase as db
+
+from skip_common_lib.utils.errors import Errors as err
+from skip_common_lib.database.customers import CustomerDatabase as db
 
 
 class Login:

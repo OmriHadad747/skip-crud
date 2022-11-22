@@ -1,7 +1,7 @@
-from typing import Dict, Tuple
+from typing import Tuple
 from flask import request, Response
-
 # from flask_jwt_extended import jwt_required
+
 from app.routes import freelancer_crud_bp
 from app.services.freelancer import CrudFreelancer
 

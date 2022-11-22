@@ -1,5 +1,5 @@
 from app import create_app
-from app import config
+from skip_common_lib import config
 
 
 if __name__ == "__main__":
