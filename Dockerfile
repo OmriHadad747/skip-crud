@@ -1,7 +1,7 @@
 FROM tiangolo/uwsgi-nginx:python3.10
 
 
-ENV APP_DIR /skip-crud-service
+ENV APP_DIR /skip-crud
 
 
 # update and install packages
@@ -23,9 +23,9 @@ RUN pip3 install --upgrade pip
 WORKDIR ${APP_DIR}
 
 
-ADD skip-crud-service/app ./app
-ADD skip-crud-service/requirements ./
-ADD skip-crud-service/run.py ./
+ADD skip-crud/app ./app
+ADD skip-crud/requirements ./
+ADD skip-crud/run.py ./
 
 
 RUN  pip3 install -r requirements --no-cache-dir
