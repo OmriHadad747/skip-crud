@@ -1,10 +1,10 @@
-from typing import Tuple
-from flask import request, Response
-
-from app.routes import login_bp
-from app.services.login import Login
+# from fastapi import APIRouter, status
+# from app.services.login import Login
 
 
-@login_bp.post("/login")
-def login() -> Tuple[Response, int]:
-    return Login.login(request.json)
+# router = APIRouter(prefix="/login")
+
+
+# @router.post()
+# def login():
+#     return Login.login(request.json)
