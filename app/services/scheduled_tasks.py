@@ -2,7 +2,6 @@
 # import requests
 
 # from typing import Any, Dict
-# from flask import current_app as app
 
 # from skip_common_lib.utils import custom_encoders as encoders
 # from skip_common_lib.clients import scheduler, redis

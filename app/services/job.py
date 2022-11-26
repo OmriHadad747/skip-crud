@@ -1,7 +1,5 @@
 import json
 
-from flask import jsonify
-
 from skip_common_lib.clients import redis
 from skip_common_lib.utils.errors import Errors as err
 from skip_common_lib.utils import custom_encoders as encoders

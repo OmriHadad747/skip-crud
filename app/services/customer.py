@@ -1,4 +1,3 @@
-from flask import jsonify
 from pydantic import validate_arguments
 from werkzeug import security
 
