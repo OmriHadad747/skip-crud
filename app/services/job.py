@@ -1,4 +1,5 @@
 import json
+import logging
 
 from skip_common_lib.clients import redis
 from skip_common_lib.utils.errors import Errors as err
@@ -8,8 +9,12 @@ from skip_common_lib.schemas import response as resp_schemas
 
 
 class CrudJob:
+    # TODO replace with better logging in the future in all rellevant places
+    logger = logging.getLogger(__name__)
+
     @classmethod
     def post_job(cls, new_job: job_schema.Job):
+        # TODO make async after setting redis async client
         # TODO write docstrings
         try:
             redis.lpush(
@@ -19,9 +24,9 @@ class CrudJob:
 
         except Exception as e:
             # TODO catch more specifiec exceptions
-            return err.general_exception(e)
+            return err.general_exception(e, cls.logger)
 
-        # app.logger.info(f"new job {new_job.id} pused to the queue")
+        cls.logger.info(f"new job {new_job.id} pused to the queue")
 
         return resp_schemas.MsgResponse(
             args=new_job.dict(),

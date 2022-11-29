@@ -1,5 +1,6 @@
-from fastapi import APIRouter, status
+from fastapi import status
 
+from app.routes import customer_router
 from app.services.customer import CrudCustomer
 from app.services.job import CrudJob
 from skip_common_lib.schemas import customer as customer_schema
@@ -7,10 +8,7 @@ from skip_common_lib.schemas import job as job_schema
 from skip_common_lib.schemas import response as resp_schema
 
 
-router = APIRouter(prefix="/customer")
-
-
-@router.get("/{email}", response_model=resp_schema.EntityResponse, status_code=status.HTTP_200_OK)
+@customer_router.get("customer/{email}", response_model=resp_schema.EntityResponse, status_code=status.HTTP_200_OK)
 async def get_customer(email: str):
     """Get customer from database by email.
 
@@ -23,7 +21,7 @@ async def get_customer(email: str):
     return await CrudCustomer.get_customer_by_email(email)
 
 
-@router.post(response_model=resp_schema.MsgResponse, status_code=status.HTTP_201_CREATED)
+@customer_router.post("/customer", response_model=resp_schema.MsgResponse, status_code=status.HTTP_201_CREATED)
 async def add_customer(customer: customer_schema.Customer):
     """Add customer to database.
 
@@ -36,7 +34,7 @@ async def add_customer(customer: customer_schema.Customer):
     return await CrudCustomer.add_customer(customer)
 
 
-@router.patch("/{email}", response_model=resp_schema.MsgResponse, status_code=status.HTTP_200_OK)
+@customer_router.patch("customer/{email}", response_model=resp_schema.MsgResponse, status_code=status.HTTP_200_OK)
 async def update_customer(email: str, customer: customer_schema.CustomerUpdate):
     """Update customer in database by current customer's email (before update).
 
@@ -50,7 +48,7 @@ async def update_customer(email: str, customer: customer_schema.CustomerUpdate):
     return await CrudCustomer.update_customer(email, customer)
 
 
-@router.delete("/{email}", response_model=resp_schema.MsgResponse, status_code=status.HTTP_200_OK)
+@customer_router.delete("customer/{email}", response_model=resp_schema.MsgResponse, status_code=status.HTTP_200_OK)
 async def delete_customer(email: str):
     """Delete customer from database by email.
 
@@ -63,8 +61,8 @@ async def delete_customer(email: str):
     return await CrudCustomer.delete_customer(email)
 
 
-@router.post("/job", response_model=resp_schema.MsgResponse, status_code=status.HTTP_201_CREATED)
-async def post_job(job: job_schema.Job):
+@customer_router.post("customer/job", response_model=resp_schema.MsgResponse, status_code=status.HTTP_201_CREATED)
+def post_job(job: job_schema.Job):
     """Post new incoming job to abailable and relevane freelancer.
     Actually, insert the new job the a 'new-job' queue.
 
@@ -74,4 +72,4 @@ async def post_job(job: job_schema.Job):
     Returns:
         resp_schema.MsgResponse
     """
-    return await CrudJob.post_job(job)
+    return CrudJob.post_job(job)

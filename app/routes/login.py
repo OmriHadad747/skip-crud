@@ -1,10 +1,10 @@
-# from fastapi import APIRouter, status
-# from app.services.login import Login
+from app.routes import login_router
+from app.services.login import Login
 
 
-# router = APIRouter(prefix="/login")
 
 
-# @router.post()
-# def login():
-#     return Login.login(request.json)
+@login_router.post()
+def login():
+    pass
+    # return Login.login(request.json)
