@@ -1,5 +1,4 @@
 import pydantic as pyd
-import logging
 
 from fastapi import FastAPI
 from logging.config import dictConfig
@@ -13,8 +12,8 @@ def create_app(settings: pyd.BaseSettings) -> FastAPI:
     app_settings.init(settings)
 
     # init logging configuration
-    from app.logging import LogConfig
-    dictConfig(LogConfig().dict())    
+    from skip_common_lib.logging import LogConfig
+    dictConfig(LogConfig(LOGGER_NAME="skip-crud-service").dict())    
 
     # init tasks
     from app import sched_tasks
