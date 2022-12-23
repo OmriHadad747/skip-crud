@@ -1,7 +1,7 @@
 import json
 import logging
 
-from skip_common_lib.clients import redis
+from app.clients import redis
 from skip_common_lib.utils.errors import Errors as err
 from skip_common_lib.utils import custom_encoders as encoders
 from skip_common_lib.schemas import job as job_schema
@@ -10,7 +10,7 @@ from skip_common_lib.schemas import response as resp_schemas
 
 class CrudJob:
     # TODO replace with better logging in the future in all rellevant places
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("skip-crud-service")
 
     @classmethod
     def post_job(cls, new_job: job_schema.Job):

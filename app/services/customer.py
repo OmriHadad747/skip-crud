@@ -10,7 +10,7 @@ from skip_common_lib.schemas import response as resp_schema
 
 
 class CrudCustomer:
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("skip-crud-service")
 
     @classmethod
     @validate_arguments
@@ -51,7 +51,7 @@ class CrudCustomer:
             if await db.get_customer_by_email(new_customer.email):
                 return err.already_exist_customer_with_email(new_customer.email, cls.logger)
 
-            res = await db.add_customer(new_customer.dict())
+            res = await db.add_customer(new_customer)
             if not res.acknowledged:
                 return err.db_op_not_acknowledged(new_customer.dict(exclude_none=True), op="insert", logger=cls.logger)
 
@@ -76,7 +76,7 @@ class CrudCustomer:
             if not await db.get_customer_by_email(email):
                 return err.email_not_found(email, cls.logger)
 
-            res = await db.update_customer(email, customer.dict(exclude_none=True))
+            res = await db.update_customer(email, customer)
             if not res.acknowledged:
                 return err.db_op_not_acknowledged(customer.dict(exclude_none=True), op="update", logger=cls.logger)
 

@@ -1,10 +1,10 @@
-from app.routes import login_router
-from app.services.login import Login
+from app.routes import login_router as api
+# from app.services.login import Login
 
 
 
 
-@login_router.post()
-def login():
+# @api.post()
+async def login():
     pass
     # return Login.login(request.json)

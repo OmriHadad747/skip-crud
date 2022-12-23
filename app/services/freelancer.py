@@ -10,7 +10,7 @@ from skip_common_lib.schemas import response as resp_schema
 
 
 class CrudFreelancer:
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("skip-crud-service")
 
     @classmethod
     @validate_arguments
@@ -45,7 +45,7 @@ class CrudFreelancer:
             if await db.get_freelancer_by_email(new_freelancer.email):
                 return err.already_exist_freelancer_with_email(new_freelancer.email)
 
-            res = await db.add_freelancer(new_freelancer.dict())
+            res = await db.add_freelancer(new_freelancer)
             if not res.acknowledged:
                 return err.db_op_not_acknowledged(
                     new_freelancer.dict(exclude_none=True), op="insert", logger=cls.logger
@@ -72,7 +72,7 @@ class CrudFreelancer:
             if not await db.get_freelancer_by_email(email):
                 return err.email_not_found(email, cls.logger)
 
-            res = await db.update_freelancer(email, freelancer.dict(exclude_none=True))
+            res = await db.update_freelancer(email, freelancer)
             if not res.acknowledged:
                 return err.db_op_not_acknowledged(freelancer.dict(exclude_none=True), op="update", logger=cls.logger)
 
