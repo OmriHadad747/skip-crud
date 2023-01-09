@@ -16,7 +16,7 @@ scheduler = APIRouter()
 
 
 @scheduler.on_event("startup")
-@repeat_every(seconds=5)
+@repeat_every(seconds=20)
 def handle_new_jobs_task():
     new_job = redis.rpop("new-jobs")
     if not new_job:

@@ -72,4 +72,5 @@ def post_job(job: job_schema.Job):
     Returns:
         resp_schema.MsgResponse
     """
-    return CrudJob.post_job(job)
+    ok = CrudJob.post_job(job)
+    return ok
