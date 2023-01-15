@@ -6,7 +6,7 @@ from app.schemas.response import MsgResp, EntityResp
 from app.schemas.job import Job, JobUpdate
 
 
-@api.post(
+@api.get(
     "job/{job_id}",
     status_code=status.HTTP_200_OK,
     response_model=EntityResp,
