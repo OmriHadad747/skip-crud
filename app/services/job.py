@@ -1,33 +1,64 @@
 import json
 import logging
+import pydantic as pyd
 
 from app.clients import redis
-from skip_common_lib.utils.errors import Errors as err
+from app.schemas.job import Job, JobUpdate, JobStatusEnum
+from app.schemas.response import MsgResp, EntityResp
+from app.errors import Errors as err
+from app.database.job import JobDB as db
 from skip_common_lib.utils import custom_encoders as encoders
-from skip_common_lib.schemas import job as job_schema
-from skip_common_lib.schemas import response as resp_schemas
 
 
 class CrudJob:
     logger = logging.getLogger("skip-crud-service")
 
     @classmethod
-    def post_job(cls, new_job: job_schema.Job):
-        # TODO make async after setting redis async client
+    @pyd.validate_arguments
+    async def get_job_by_id(cls, id: str):
+        cls.logger.debug(f"retrieveing job by id {id}")
 
-        try:
-            redis.lpush(
-                "new-jobs",
-                json.dumps(new_job.dict(), default=encoders.custom_serializer),
-            )
+        job = await db.get_job_by_id(id)
+        if not job:
+            return err.id_not_found(id)
 
-        except Exception as e:
-            # TODO catch more specifiec exceptions
-            return err.general_exception(e, cls.logger)
+        return EntityResp(output=dict(job=job))
 
-        cls.logger.info(f"new job {new_job.id} pused to the queue")
+    @classmethod
+    @pyd.validate_arguments
+    async def get_job_by_customer_email(cls, customer_email: str):
+        pass
 
-        return resp_schemas.MsgResponse(
-            args=json.loads(json.dumps(new_job.dict(), default=encoders.custom_serializer)),
-            msg=f"{new_job.customer_email} new job {new_job.id} post pused to the queue",
+    @classmethod
+    @pyd.validate_arguments
+    async def get_job_by_freelancer_email(cls, freelancer_emial: str):
+        pass
+
+    @classmethod
+    @pyd.validate_arguments
+    async def add_job(cls, new_job: Job):
+        # add the new job into database
+        res = await db.add_job(new_job)
+        if not res.acknowledged:
+            return err.db_op_not_acknowledged(new_job.dict(exclude_none=True), op="insert")
+
+        # push new job to new-jobs queue
+        await redis.lpush(
+            "new-jobs",
+            json.dumps(new_job.dict(), default=encoders.custom_serializer),
         )
+
+        return MsgResp(
+            msg=f"{new_job.customer_email} new job {new_job.id} saved and pused to the queue",
+        )
+
+    @classmethod
+    @pyd.validate_arguments
+    async def update_job(cls, id: str, job: JobUpdate, status: JobStatusEnum):
+        cls.logger.debug(f"udpating job {id} with fields {job.dict(exclude_none=True)}")
+
+        res = await db.update_job(id, job, status)
+        if not res.acknowledged:
+            return err.db_op_not_acknowledged(job.dict(exclude_none=True), op="update")
+
+        return MsgResp(msg=f"job {id} updated in db")

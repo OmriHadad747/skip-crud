@@ -8,19 +8,23 @@ def create_app(settings: pyd.BaseSettings) -> FastAPI:
     app = FastAPI()
 
     # init settings
-    from skip_common_lib.settings import app_settings
+    from app.settings import app_settings
+
     app_settings.init(settings)
 
-    # init logging configuration
+    # init logging
     from skip_common_lib.logging import LogConfig
-    dictConfig(LogConfig(LOGGER_NAME="skip-crud-service").dict())    
+
+    dictConfig(LogConfig(LOGGER_NAME="skip-crud-service").dict())
 
     # init tasks
-    from app import sched_tasks
-    app.include_router(sched_tasks.scheduler)
+    from app import tasks
+
+    app.include_router(tasks.scheduler)
 
     # init routes
     from app.routes import login, customer, freelancer
+
     app.include_router(login.api)
     app.include_router(customer.api)
     app.include_router(freelancer.api)

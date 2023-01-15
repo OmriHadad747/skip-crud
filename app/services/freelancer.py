@@ -56,15 +56,16 @@ class CrudFreelancer:
             return err.general_exception(e, cls.logger)
 
         return resp_schema.MsgResponse(
-            args=new_freelancer.dict(),
-            msg=f"freelancer {new_freelancer.email} saved to db"
+            args=new_freelancer.dict(), msg=f"freelancer {new_freelancer.email} saved to db"
         )
 
     @classmethod
     @validate_arguments
     async def update_freelancer(cls, email: str, freelancer: freelancer_schema.FreelancerUpdate):
         try:
-            cls.logger.debug(f"udpating freelancer {email} with fields {freelancer.dict(exclude_none=True)}")
+            cls.logger.debug(
+                f"udpating freelancer {email} with fields {freelancer.dict(exclude_none=True)}"
+            )
 
             if freelancer.password:
                 freelancer.password = security.generate_password_hash(freelancer.password)
@@ -74,33 +75,35 @@ class CrudFreelancer:
 
             res = await db.update_freelancer(email, freelancer)
             if not res.acknowledged:
-                return err.db_op_not_acknowledged(freelancer.dict(exclude_none=True), op="update", logger=cls.logger)
+                return err.db_op_not_acknowledged(
+                    freelancer.dict(exclude_none=True), op="update", logger=cls.logger
+                )
 
         except Exception as e:
             return err.general_exception(e, cls.logger)
 
         return resp_schema.MsgResponse(
-            args=freelancer.dict(exclude_none=True),
-            msg=f"freelancer {email} updated in db"
+            args=freelancer.dict(exclude_none=True), msg=f"freelancer {email} updated in db"
         )
 
     @classmethod
     @validate_arguments
     async def delete_freelancer(cls, email: str):
         cls.logger.debug(f"deleting freelancer {email}")
-        
+
         try:
             if not await db.get_freelancer_by_email(email):
                 return err.email_not_found(email, cls.logger)
 
             res = await db.delete_freelancer(email)
             if not res.acknowledged:
-                return err.db_op_not_acknowledged({"freelancer_email": email}, op="delete", logger=cls.logger)
+                return err.db_op_not_acknowledged(
+                    {"freelancer_email": email}, op="delete", logger=cls.logger
+                )
 
         except Exception as e:
             return err.general_exception(e, cls.logger)
 
         return resp_schema.MsgResponse(
-            args=dict(email=email),
-            msg=f"freelancer {email} deleted from db"
+            args=dict(email=email), msg=f"freelancer {email} deleted from db"
         )
