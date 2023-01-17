@@ -6,8 +6,7 @@ from bson import ObjectId
 from app.database import db, _freelancers
 from app.schemas.freelancer import Freelancer, FreelancerUpdate, FreelancerStatusEnum
 from app.schemas.request import NearestFilterReq
-
-from skip_common_lib.utils.custom_encoders import codec_options
+from app.database import codec_options
 
 
 class FreelancerDB:

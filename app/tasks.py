@@ -9,7 +9,7 @@ from httpx import _exceptions as httpx_exc
 
 from app.clients import redis
 from app.settings import app_settings as s
-from skip_common_lib.utils import custom_encoders as encoders
+from app.serializer import custom_json_serializer
 from skip_common_lib.utils.async_http import AsyncHttp
 from skip_common_lib.consts import HttpMethod
 
@@ -35,11 +35,11 @@ async def handle_new_jobs_task():
 
     except httpx_exc.HTTPError:
         logger.error("lost connection with freelancer-finder service")
-        await redis.lpush("new-jobs", json.dumps(new_job, default=encoders.custom_serializer))
+        await redis.lpush("new-jobs", json.dumps(new_job, default=custom_json_serializer))
         return
 
     if resp.status_code != status.HTTP_200_OK:
         logger.error(
             f"got {resp.status_code} from freelancer-finder service for job {new_job.get('id')}"
         )
-        await redis.lpush("new-jobs", json.dumps(new_job, default=encoders.custom_serializer))
+        await redis.lpush("new-jobs", json.dumps(new_job, default=custom_json_serializer))

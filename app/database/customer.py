@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from app.schemas.customer import Customer, CustomerUpdate
 from app.database import db, _customers
-from skip_common_lib.utils.custom_encoders import codec_options
+from app.database import codec_options
 
 
 class CustomerDB:

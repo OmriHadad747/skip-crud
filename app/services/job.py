@@ -9,8 +9,7 @@ from app.schemas.job import Job, JobUpdate, JobStatusEnum
 from app.schemas.response import MsgResp, EntityResp
 from app.errors import Errors as err
 from app.database.job import JobDB as db
-
-from skip_common_lib.utils import custom_encoders as encoders
+from app.serializer import custom_json_serializer
 
 
 class CrudJob:
@@ -48,7 +47,7 @@ class CrudJob:
         # push new job to new-jobs queue
         await redis.lpush(
             "new-jobs",
-            json.dumps(new_job.dict(), default=encoders.custom_serializer),
+            json.dumps(new_job.dict(), default=custom_json_serializer),
         )
 
         return MsgResp(

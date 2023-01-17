@@ -4,7 +4,7 @@ from pymongo import collection, results
 
 from app.schemas.job import Job, JobUpdate, JobStatusEnum
 from app.database import db, _jobs
-from skip_common_lib.utils.custom_encoders import codec_options
+from app.database import codec_options
 
 
 class JobDB:
