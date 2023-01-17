@@ -4,6 +4,7 @@ from app.schemas import CustomRespBaseModel
 
 
 class MsgResp(CustomRespBaseModel):
+    entity: dict[str, Any] | None
     msg: str
 
 

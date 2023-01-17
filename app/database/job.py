@@ -33,7 +33,8 @@ class JobDB:
         cls, id: str, job: JobUpdate, curr_job_status: JobStatusEnum
     ) -> results.UpdateResult:
         result = await cls._get_coll().update_one(
-            {"_id": ObjectId(id), "job_status": curr_job_status.value},
+            {"_id": ObjectId(id), "status": curr_job_status.value},
             {"$set": job.dict(exclude_none=True)},
         )
+
         return result

@@ -3,9 +3,10 @@ from pymongo import command_cursor
 from pymongo import collection, results
 from bson import ObjectId
 
-from app.schemas.freelancer import Freelancer, FreelancerUpdate, FreelancerStatusEnum
-from app.schemas.job import Job
 from app.database import db, _freelancers
+from app.schemas.freelancer import Freelancer, FreelancerUpdate, FreelancerStatusEnum
+from app.schemas.request import NearestFilterReq
+
 from skip_common_lib.utils.custom_encoders import codec_options
 
 
@@ -28,12 +29,14 @@ class FreelancerDB:
         return db[_freelancers].with_options(codec_options=codec_options)
 
     @classmethod
-    async def find_nearest_freelancers(cls, job: Job) -> command_cursor.CommandCursor:
+    async def find_nearest_freelancers(
+        cls, filter: NearestFilterReq
+    ) -> command_cursor.CommandCursor:
         """Finds and returns a list ordered by distance of optional
-        freelancers the incoming job.
+        freelancers from a location.
 
         Args:
-            job (job_model.Job): Incoming job.
+            filter (NearestFilterReq): Filter parmaeters.
 
         Returns:
             command_cursor.CommandCursor: Cursor of optional freelancers.
@@ -44,13 +47,13 @@ class FreelancerDB:
                     "$geoNear": {
                         "near": {
                             "type": "Point",
-                            "coordinates": [job.job_location[0], job.job_location[1]],
+                            "coordinates": [filter.job_location[0], filter.job_location[1]],
                         },
                         "spherical": True,
                         "query": {
                             "current_status": FreelancerStatusEnum.AVAILABLE.value,
-                            "county": job.customer_county,
-                            "categories": {"$in": [job.job_category]},
+                            "county": filter.customer_county,
+                            "categories": {"$in": [filter.job_category]},
                         },
                         "distanceField": "distance",
                     }

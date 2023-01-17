@@ -40,7 +40,7 @@ class CustomerDB:
         return result
 
     @classmethod
-    async def update_customer(cls, email: str, customer: Customer) -> results.UpdateResult:
+    async def update_customer(cls, email: str, customer: CustomerUpdate) -> results.UpdateResult:
         result = await cls._get_coll().update_one(
             {"email": email},
             {"$set": customer.dict(exclude_none=True)},

@@ -2,11 +2,14 @@ import json
 import logging
 import pydantic as pyd
 
+from fastapi import status
+
 from app.clients import redis
 from app.schemas.job import Job, JobUpdate, JobStatusEnum
 from app.schemas.response import MsgResp, EntityResp
 from app.errors import Errors as err
 from app.database.job import JobDB as db
+
 from skip_common_lib.utils import custom_encoders as encoders
 
 
@@ -54,10 +57,38 @@ class CrudJob:
 
     @classmethod
     @pyd.validate_arguments
-    async def update_job(cls, id: str, job: JobUpdate, status: JobStatusEnum):
-        cls.logger.debug(f"udpating job {id} with fields {job.dict(exclude_none=True)}")
+    async def update_and_return(cls, job_id: str, job: JobUpdate, job_status: JobStatusEnum):
+        res = await db.update_job(job_id, job, curr_job_status=job_status)
+        if res.matched_count == 0:
+            cls.logger.debug(f"job {job_id} was not found")
+            return MsgResp(msg=f"job {job_id} was not found. job status may changed").json_response(
+                status_code=status.HTTP_404_NOT_FOUND
+            )
 
-        res = await db.update_job(id, job, status)
+        if not res.acknowledged:
+            return err.db_op_not_acknowledged(job.dict(exclude_none=True), op="update")
+
+        updated = await db.get_job_by_id(job_id)
+
+        return MsgResp(msg=f"job {id} updated in db", entity=updated)
+
+    @classmethod
+    @pyd.validate_arguments
+    async def update_job(
+        cls, id: str, job: JobUpdate, job_status: JobStatusEnum, return_with_updated: bool = False
+    ):
+        cls.logger.debug(f"updating job {id} with fields {job.dict(exclude_none=True)}")
+
+        if return_with_updated:
+            return await cls.update_and_return(id, job, job_status)
+
+        res = await db.update_job(id, job, curr_job_status=job_status)
+        if res.matched_count == 0:
+            cls.logger.debug(f"job {id} was not found")
+            return MsgResp(msg=f"job {id} was not found. job status may changed").json_response(
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+
         if not res.acknowledged:
             return err.db_op_not_acknowledged(job.dict(exclude_none=True), op="update")
 

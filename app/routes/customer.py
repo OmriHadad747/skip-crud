@@ -1,9 +1,9 @@
 from fastapi import status
 
 from app.routes import customer_router as api
-from app.services.customer import CrudCustomer
-from app.schemas.response import MsgResp, EntityResp
 from app.schemas.customer import Customer, CustomerUpdate
+from app.schemas.response import MsgResp, EntityResp
+from app.services.customer import CrudCustomer
 
 
 @api.get(
