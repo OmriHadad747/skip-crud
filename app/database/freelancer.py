@@ -1,12 +1,11 @@
 from typing import Any
-from pymongo import command_cursor
 from pymongo import collection, results
 from bson import ObjectId
 
 from app.database import db, _freelancers
+from app.database import codec_options
 from app.schemas.freelancer import Freelancer, FreelancerUpdate, FreelancerStatusEnum
 from app.schemas.request import NearestFilterReq
-from app.database import codec_options
 
 
 class FreelancerDB:
@@ -30,7 +29,7 @@ class FreelancerDB:
     @classmethod
     async def find_nearest_freelancers(
         cls, filter: NearestFilterReq
-    ) -> command_cursor.CommandCursor:
+    ) -> list[Freelancer]:
         """Finds and returns a list ordered by distance of optional
         freelancers from a location.
 
@@ -38,9 +37,9 @@ class FreelancerDB:
             filter (NearestFilterReq): Filter parmaeters.
 
         Returns:
-            command_cursor.CommandCursor: Cursor of optional freelancers.
+            list[Freelancer]: List of available and nearest freelancers.
         """
-        freelancers = await cls._get_coll().aggregate(
+        freelancers = cls._get_coll().aggregate(
             [
                 {
                     "$geoNear": {
@@ -59,7 +58,12 @@ class FreelancerDB:
                 }
             ]
         )
-        return freelancers
+
+        freelancers_result = []
+        async for f in freelancers:
+            freelancers_result.append(Freelancer(**f))
+
+        return freelancers_result
 
     @classmethod
     async def get_freelancer_by_id(cls, id: str) -> Any:

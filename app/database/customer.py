@@ -2,9 +2,9 @@ from typing import Any
 from pymongo import collection, results, ASCENDING
 from bson import ObjectId
 
-from app.schemas.customer import Customer, CustomerUpdate
 from app.database import db, _customers
 from app.database import codec_options
+from app.schemas.customer import Customer, CustomerUpdate
 
 
 class CustomerDB:

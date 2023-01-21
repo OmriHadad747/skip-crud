@@ -1,6 +1,5 @@
 import pydantic as pyd
 
-from typing import Any, Dict
 from datetime import datetime
 from enum import Enum
 from bson import ObjectId
@@ -29,13 +28,6 @@ class JobQuotation(CustomBaseModel):
     estimated_job_duration: str
     quotation: str
 
-    def quotation_to_str(self) -> Dict[str, Any]:
-        return {
-            "quotation_description": self.quotation_discription,
-            "estimated_job_duration": self.estimated_job_duration,
-            "quotation": self.quotation,
-        }
-
 
 class Job(CustomBaseModel):
     created_at: datetime = pyd.Field(default_factory=datetime.now)
@@ -58,37 +50,6 @@ class Job(CustomBaseModel):
         if isinstance(value, ObjectId):
             return str(value)
         return value
-
-    def job_to_str(
-        self, customer_part: bool = True, freelancer_part: bool = False
-    ) -> Dict[str, Any]:
-        job_data = {
-            "job_id": str(self.id),
-            "job_category": str(self.job_category),
-            "job_description": self.job_description,
-            "job_lon": str(self.job_location[0]),
-            "job_lat": str(self.job_location[1]),
-        }
-
-        if customer_part:
-            job_data.update(
-                {
-                    "customer_email": self.customer_email,
-                    "customer_phone": self.customer_phone,
-                    "customer_address": self.customer_address,
-                    "customer_county": self.customer_county,
-                }
-            )
-
-        if freelancer_part:
-            job_data.update(
-                {
-                    "freelancer_email": self.freelancer_email,
-                    "freelancer_phone": self.freelancer_phone,
-                }
-            )
-
-        return job_data
 
 
 class JobUpdate(CustomBaseModel):

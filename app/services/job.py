@@ -13,7 +13,7 @@ from app.serializer import custom_json_serializer
 
 
 class CrudJob:
-    logger = logging.getLogger("skip-crud-service")
+    logger = logging.getLogger("crud-service")
 
     @classmethod
     @pyd.validate_arguments
@@ -39,6 +39,8 @@ class CrudJob:
     @classmethod
     @pyd.validate_arguments
     async def add_job(cls, new_job: Job):
+        cls.logger.info(f"adding job {new_job.id} to db and pushing in into 'new-jobs' queue")
+
         # add the new job into database
         res = await db.add_job(new_job)
         if not res.acknowledged:

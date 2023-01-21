@@ -15,7 +15,7 @@ class CrudFreelancer:
 
     @classmethod
     @validate_arguments
-    async def get_freelancer_by_id(cls, id: str):
+    async def get_freelancer_by_id(cls, id: str) -> EntityResp:
         cls.logger.debug(f"retrieveing freelancer by id {id}")
 
         freelancer = await db.get_freelancer_by_id(id)
@@ -26,7 +26,7 @@ class CrudFreelancer:
 
     @classmethod
     @validate_arguments
-    async def get_freelancer_by_email(cls, email: str):
+    async def get_freelancer_by_email(cls, email: str) -> EntityResp:
         cls.logger.debug(f"retrieveing freelancer by email {email}")
 
         freelancer = await db.get_freelancer_by_email(email)
@@ -37,7 +37,7 @@ class CrudFreelancer:
 
     @classmethod
     @validate_arguments
-    async def add_freelancer(cls, new_freelancer: Freelancer):
+    async def add_freelancer(cls, new_freelancer: Freelancer) -> MsgResp:
         cls.logger.debug(f"adding freelancer {new_freelancer.dict()}")
 
         new_freelancer.password = security.generate_password_hash(new_freelancer.password)
@@ -55,7 +55,7 @@ class CrudFreelancer:
 
     @classmethod
     @validate_arguments
-    async def update_freelancer(cls, email: str, freelancer: FreelancerUpdate):
+    async def update_freelancer(cls, email: str, freelancer: FreelancerUpdate) -> MsgResp:
         cls.logger.debug(
             f"udpating freelancer {email} with fields {freelancer.dict(exclude_none=True)}"
         )
@@ -76,7 +76,7 @@ class CrudFreelancer:
 
     @classmethod
     @validate_arguments
-    async def delete_freelancer(cls, email: str):
+    async def delete_freelancer(cls, email: str) -> MsgResp:
         cls.logger.debug(f"deleting freelancer {email}")
 
         if not await db.get_freelancer_by_email(email):
@@ -92,10 +92,10 @@ class CrudFreelancer:
 
     @classmethod
     @validate_arguments
-    async def get_nearest(cls, filter: NearestFilterReq):
+    async def get_nearest(cls, filter: NearestFilterReq) -> EntityResp:
 
-        raw_available_freelancers = await db.find_nearest_freelancers(filter)
+        available_freelancers = await db.find_nearest_freelancers(filter)
+        
+        cls.logger.debug(f"available nearest freelancers {available_freelancers}")
 
-        available_freelancers = [freelancer for freelancer in raw_available_freelancers]
-
-        return EntityResp(output=available_freelancers)
+        return EntityResp(output=dict(available_freelancers=available_freelancers))

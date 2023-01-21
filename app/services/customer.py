@@ -6,7 +6,7 @@ from werkzeug import security
 from app.errors import Errors as err
 from app.schemas.customer import Customer, CustomerUpdate
 from app.schemas.response import MsgResp, EntityResp
-from skip_common_lib.database.customers import CustomerDB as db
+from app.database.customer import CustomerDB as db
 
 
 class CrudCustomer:
@@ -14,7 +14,7 @@ class CrudCustomer:
 
     @classmethod
     @validate_arguments
-    async def get_customer_by_id(cls, id: str):
+    async def get_customer_by_id(cls, id: str) -> EntityResp:
         cls.logger.debug(f"retrieveing customer by id {id}")
 
         customer = await db.get_customer_by_id(id)
@@ -25,7 +25,7 @@ class CrudCustomer:
 
     @classmethod
     @validate_arguments
-    async def get_customer_by_email(cls, email: str):
+    async def get_customer_by_email(cls, email: str) -> EntityResp:
         cls.logger.debug(f"retrieveing customer by email {email}")
 
         customer = await db.get_customer_by_email(email)
@@ -36,7 +36,7 @@ class CrudCustomer:
 
     @classmethod
     @validate_arguments
-    async def add_customer(cls, new_customer: Customer):
+    async def add_customer(cls, new_customer: Customer) -> MsgResp:
         cls.logger.debug(f"adding customer {new_customer.dict()}")
 
         new_customer.password = security.generate_password_hash(new_customer.password)
@@ -52,7 +52,7 @@ class CrudCustomer:
 
     @classmethod
     @validate_arguments
-    async def update_customer(cls, email: str, customer: CustomerUpdate):
+    async def update_customer(cls, email: str, customer: CustomerUpdate) -> MsgResp:
         cls.logger.debug(
             f"udpating customer {email} with fields {customer.dict(exclude_none=True)}"
         )
@@ -71,7 +71,7 @@ class CrudCustomer:
 
     @classmethod
     @validate_arguments
-    async def delete_customer(cls, email: str):
+    async def delete_customer(cls, email: str) -> MsgResp:
         cls.logger.debug(f"deleting customer {email}")
 
         if not await db.get_customer_by_email(email):

@@ -24,6 +24,8 @@ class JobCategoryEncoder(TypeEncoder):
         that BSON can encode.
         """
         return value.value
+
+
 job_category_encoder = JobCategoryEncoder()
 
 
@@ -37,6 +39,8 @@ class JobStatusEncoder(TypeEncoder):
         that BSON can encode.
         """
         return value.value
+
+
 job_status_encoder = JobStatusEncoder()
 
 
@@ -50,6 +54,8 @@ class FreelancertatusEncoder(TypeEncoder):
         that BSON can encode.
         """
         return value.value
+
+
 freelancer_status_encoder = FreelancertatusEncoder()
 
 

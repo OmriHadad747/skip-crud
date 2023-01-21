@@ -2,9 +2,9 @@ from typing import Any
 from bson import ObjectId
 from pymongo import collection, results
 
-from app.schemas.job import Job, JobUpdate, JobStatusEnum
 from app.database import db, _jobs
 from app.database import codec_options
+from app.schemas.job import Job, JobUpdate, JobStatusEnum
 
 
 class JobDB:
