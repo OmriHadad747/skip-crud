@@ -9,4 +9,5 @@ class MsgResp(CustomRespBaseModel):
 
 
 class EntityResp(CustomRespBaseModel):
-    output: dict[str, Any]
+    entity: dict[str, Any] | list[dict[str, Any]]
+    msg: str | None = "no message"

@@ -21,7 +21,7 @@ class CrudCustomer:
         if not customer:
             return err.id_not_found(id)
 
-        return EntityResp(output=dict(customer))
+        return EntityResp(entity=customer)
 
     @classmethod
     @validate_arguments
@@ -32,7 +32,7 @@ class CrudCustomer:
         if not customer:
             return err.email_not_found(email)
 
-        return EntityResp(output=customer)
+        return EntityResp(entity=customer)
 
     @classmethod
     @validate_arguments

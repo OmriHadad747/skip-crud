@@ -22,7 +22,7 @@ class CrudFreelancer:
         if not freelancer:
             return err.id_not_found(id, cls.logger)
 
-        return EntityResp(output=freelancer)
+        return EntityResp(entity=freelancer)
 
     @classmethod
     @validate_arguments
@@ -33,7 +33,7 @@ class CrudFreelancer:
         if not freelancer:
             return err.email_not_found(email, cls.logger)
 
-        return EntityResp(output=freelancer)
+        return EntityResp(entity=freelancer)
 
     @classmethod
     @validate_arguments
@@ -98,4 +98,4 @@ class CrudFreelancer:
         
         cls.logger.debug(f"available nearest freelancers {available_freelancers}")
 
-        return EntityResp(output=dict(available_freelancers=available_freelancers))
+        return EntityResp(entity=available_freelancers)
