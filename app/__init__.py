@@ -25,9 +25,9 @@ def create_app(settings: pyd.BaseSettings) -> FastAPI:
     # init routes
     from app.routes import login, customer, freelancer, job
 
-    app.include_router(login.api)
-    app.include_router(customer.api)
-    app.include_router(freelancer.api)
-    app.include_router(job.api)
+    app.include_router(login.api, tags=["Login"])
+    app.include_router(customer.api, tags=["Customer"])
+    app.include_router(freelancer.api, tags=["Freelancer"])
+    app.include_router(job.api, tags=["Job"])
 
     return app

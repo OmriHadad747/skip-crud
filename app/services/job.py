@@ -24,7 +24,7 @@ class CrudJob:
         if not job:
             return err.id_not_found(id)
 
-        return EntityResp(entity=job)
+        return EntityResp(entity=Job(**job))
 
     @classmethod
     @pyd.validate_arguments
@@ -71,7 +71,7 @@ class CrudJob:
 
         updated = await db.get_job_by_id(job_id)
 
-        return EntityResp(msg=f"job {id} updated in db", entity=updated)
+        return EntityResp(msg=f"job {job_id} updated in db", entity=Job(**updated))
 
     @classmethod
     @pyd.validate_arguments

@@ -10,7 +10,7 @@ from app.database.customer import CustomerDB as db
 
 
 class CrudCustomer:
-    logger = logging.getLogger("skip-crud-service")
+    logger = logging.getLogger("crud-service")
 
     @classmethod
     @validate_arguments
@@ -21,7 +21,7 @@ class CrudCustomer:
         if not customer:
             return err.id_not_found(id)
 
-        return EntityResp(entity=customer)
+        return EntityResp(entity=Customer(**customer))
 
     @classmethod
     @validate_arguments
@@ -32,7 +32,7 @@ class CrudCustomer:
         if not customer:
             return err.email_not_found(email)
 
-        return EntityResp(entity=customer)
+        return EntityResp(entity=Customer(**customer))
 
     @classmethod
     @validate_arguments

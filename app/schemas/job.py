@@ -14,19 +14,19 @@ class JobCategoryEnum(Enum):
 
 
 class JobStatusEnum(Enum):
-    FREELANCER_FINDING = "freelancer finding"
-    FREELANCER_FOUND = "freelancer found"
-    FREELANCER_CANCELED = "freelancer canceled"
-    CUSTOMER_CANCELD = "customer canceld"
-    APPROVED = "customer approved"
-    IN_PROGRESS = "in progress"
+    FREELANCER_FINDING = "freelancer-finding"
+    FREELANCER_FOUND = "freelancer-found"
+    FREELANCER_CANCELED = "freelancer-canceled"
+    CUSTOMER_CANCELD = "customer-canceld"
+    APPROVED = "customer-approved"
+    IN_PROGRESS = "in-progress"
     DONE = "done"
 
 
 class JobQuotation(CustomBaseModel):
-    quotation_discription: str
+    description: str
     estimated_job_duration: str
-    quotation: str
+    price: str
 
 
 class Job(CustomBaseModel):
