@@ -1,38 +1,55 @@
-from typing import Tuple
-from flask import request, Response
+from fastapi import status
 
-# from flask_jwt_extended import jwt_required
-from app.routes import customer_crud_bp
+from app.routes import customer_router as api
+from app.schemas.customer import Customer, CustomerUpdate
+from app.schemas.response import MsgResp, EntityResp
 from app.services.customer import CrudCustomer
-from app.services.job import CrudJob
 
 
-# TODO type all the returns of the functions here
+@api.get(
+    "/customer/{email}",
+    response_model=EntityResp,
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_404_NOT_FOUND: {"model": MsgResp}},
+)
+async def get_customer(email: str):
+    return await CrudCustomer.get_customer_by_email(email)
 
 
-@customer_crud_bp.post("/customer")
-def add_customer() -> Tuple[Response, int]:
-    return CrudCustomer.add_customer(request.json)
+@api.post(
+    "/customer",
+    response_model=MsgResp,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_400_BAD_REQUEST: {"model": MsgResp},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": MsgResp},
+    },
+)
+async def add_customer(customer: Customer):
+    return await CrudCustomer.add_customer(customer)
 
 
-@customer_crud_bp.get("/customer/<string:email>")
-# @jwt_required()
-def get_customer(email: str) -> Tuple[Response, int]:
-    return CrudCustomer.get_customer_by_email(email)
+@api.patch(
+    "/customer/{email}",
+    response_model=MsgResp,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": MsgResp},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": MsgResp},
+    },
+)
+async def update_customer(email: str, customer: CustomerUpdate):
+    return await CrudCustomer.update_customer(email, customer)
 
 
-@customer_crud_bp.patch("/customer/<string:email>")
-# @jwt_required()
-def update_customer(email: str) -> Tuple[Response, int]:
-    return CrudCustomer.update_customer(email, request.json)
-
-
-@customer_crud_bp.delete("/customer/<string:email>")
-# @jwt_required()
-def delete_customer(email: str) -> Tuple[Response, int]:
-    return CrudCustomer.delete_customer(email)
-
-
-@customer_crud_bp.post("/customer/job")
-def post_job() -> Tuple[Response, int]:
-    return CrudJob.post_job(request.json)
+@api.delete(
+    "/customer/{email}",
+    response_model=MsgResp,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": MsgResp},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": MsgResp},
+    },
+)
+async def delete_customer(email: str):
+    return await CrudCustomer.delete_customer(email)

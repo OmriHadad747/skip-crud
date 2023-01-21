@@ -1,90 +1,84 @@
-from typing import Any, Dict
-from flask import jsonify
+import logging
+
 from pydantic import validate_arguments
 from werkzeug import security
 
-from skip_common_lib.utils.errors import Errors as err
-from skip_common_lib.database.customers import CustomerDatabase as db
-from skip_common_lib.models import customer as customer_model
-
-
-# TODO catch more specifiec exceptions
-# TODO do logs
-# TODO write docstrings
-# TODO type all the returnes of the function
+from app.errors import Errors as err
+from app.schemas.customer import Customer, CustomerUpdate
+from app.schemas.response import MsgResp, EntityResp
+from app.database.customer import CustomerDB as db
 
 
 class CrudCustomer:
-    @classmethod
-    @validate_arguments
-    def add_customer(cls, fields: Dict[str, Any]):
-        try:
-            new_customer = customer_model.Customer(**fields)
-            new_customer.password = security.generate_password_hash(new_customer.password)
-
-            if db.get_customer_by_email(new_customer.email):
-                return err.already_exist_customer_with_email(new_customer.email)
-
-            ack = db.add_customer(new_customer.dict())
-            if not ack:
-                return err.db_op_not_acknowledged(new_customer.dict(), op="insert")
-
-        except Exception as e:
-            return err.general_exception(e)
-
-        return jsonify(msg=f"customer {new_customer.email} saved to db"), 201
+    logger = logging.getLogger("skip-crud-service")
 
     @classmethod
     @validate_arguments
-    def get_customer_by_id(cls, id: str):
-        customer = db.get_customer_by_id(id)
+    async def get_customer_by_id(cls, id: str) -> EntityResp:
+        cls.logger.debug(f"retrieveing customer by id {id}")
+
+        customer = await db.get_customer_by_id(id)
         if not customer:
             return err.id_not_found(id)
 
-        return jsonify(customer=customer), 200
+        return EntityResp(entity=customer)
 
     @classmethod
     @validate_arguments
-    def get_customer_by_email(cls, email: str):
-        customer = db.get_customer_by_email(email)
+    async def get_customer_by_email(cls, email: str) -> EntityResp:
+        cls.logger.debug(f"retrieveing customer by email {email}")
+
+        customer = await db.get_customer_by_email(email)
         if not customer:
             return err.email_not_found(email)
 
-        return jsonify(customer=customer), 200
+        return EntityResp(entity=customer)
 
     @classmethod
     @validate_arguments
-    def update_customer(cls, email: str, fields: Dict[str, Any]):
-        try:
-            customer = customer_model.CustomerUpdate(**fields)
+    async def add_customer(cls, new_customer: Customer) -> MsgResp:
+        cls.logger.debug(f"adding customer {new_customer.dict()}")
 
-            if customer.password:
-                customer.password = security.generate_password_hash(customer.password)
+        new_customer.password = security.generate_password_hash(new_customer.password)
 
-            if not db.get_customer_by_email(email):
-                return err.email_not_found(email)
+        if await db.get_customer_by_email(new_customer.email):
+            return err.already_exist_customer_with_email(new_customer.email, cls.logger)
 
-            ack = db.update_customer(email, customer.dict(exclude_none=True))
-            if not ack:
-                return err.db_op_not_acknowledged(customer.dict(exclude_none=True), op="update")
+        res = await db.add_customer(new_customer)
+        if not res.acknowledged:
+            return err.db_op_not_acknowledged(new_customer.dict(exclude_none=True), op="insert")
 
-        except Exception as e:
-            return err.general_exception(e)
-
-        return jsonify(msg=f"customer {email} updated in db"), 200
+        return MsgResp(msg=f"customer {new_customer.email} saved to db")
 
     @classmethod
     @validate_arguments
-    def delete_customer(cls, email: str):
-        try:
-            if not db.get_customer_by_email(email):
-                return err.email_not_found(email)
+    async def update_customer(cls, email: str, customer: CustomerUpdate) -> MsgResp:
+        cls.logger.debug(
+            f"udpating customer {email} with fields {customer.dict(exclude_none=True)}"
+        )
 
-            ack = db.delete_customer(email)
-            if not ack:
-                return err.db_op_not_acknowledged({"customer_email": email}, op="delete")
+        if customer.password:
+            customer.password = security.generate_password_hash(customer.password)
 
-        except Exception as e:
-            return err.general_exception(e)
+        if not await db.get_customer_by_email(email):
+            return err.email_not_found(email, cls.logger)
 
-        return jsonify(msg=f"customer {email} deleted from db"), 200
+        res = await db.update_customer(email, customer)
+        if not res.acknowledged:
+            return err.db_op_not_acknowledged(customer.dict(exclude_none=True), op="update")
+
+        return MsgResp(msg=f"customer {email} updated in db")
+
+    @classmethod
+    @validate_arguments
+    async def delete_customer(cls, email: str) -> MsgResp:
+        cls.logger.debug(f"deleting customer {email}")
+
+        if not await db.get_customer_by_email(email):
+            return err.email_not_found(email, cls.logger)
+
+        res = await db.delete_customer(email)
+        if not res.acknowledged:
+            return err.db_op_not_acknowledged({"customer_email": email}, op="delete")
+
+        return MsgResp(msg=f"customer {email} deleted from db")

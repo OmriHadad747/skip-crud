@@ -1,32 +1,33 @@
-import os
+import pydantic as pyd
 
-from flask import Flask
-from skip_common_lib.config import BaseConfig
+from fastapi import FastAPI
+from logging.config import dictConfig
 
 
-def create_app(app_config: BaseConfig) -> Flask:
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object(app_config)
+def create_app(settings: pyd.BaseSettings) -> FastAPI:
+    app = FastAPI()
 
-    with app.app_context():
-        from skip_common_lib.utils import custom_encoders
-        from app.services import scheduled_tasks
+    # init settings
+    from app.settings import app_settings
 
-        from skip_common_lib.database import mongo
-        mongo.init_app(app)
+    app_settings.init(settings)
 
-        # init flask-extensions
-        from skip_common_lib.extensions import jwt, scheduler
-        jwt.init_app(app)
-        scheduler.init_app(app)
+    # init logging
+    from skip_common_lib.logging import LogConfig
 
-        from app.routes import login, customer, freelancer
-        app.register_blueprint(login.login_bp)
-        app.register_blueprint(customer.customer_crud_bp)
-        app.register_blueprint(freelancer.freelancer_crud_bp)
+    dictConfig(LogConfig().dict())
 
-        # preventing from starting the scheduler twice (Werkzug launches two threads in order to reload the flask application on changes made)
-        if app.config["ENV"] == "development" and os.environ.get("WERKZEUG_RUN_MAIN") != "true":
-            scheduler.start()
+    # init tasks
+    from app import tasks
 
-        return app
+    app.include_router(tasks.scheduler)
+
+    # init routes
+    from app.routes import login, customer, freelancer, job
+
+    app.include_router(login.api)
+    app.include_router(customer.api)
+    app.include_router(freelancer.api)
+    app.include_router(job.api)
+
+    return app
